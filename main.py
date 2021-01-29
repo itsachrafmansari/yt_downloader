@@ -15,12 +15,39 @@ def convertaudio(var):
 
 #Defining the download function
 def dl(var):
-    print('Video titled [' + var.title + '] started downloading')
+
     if Format == 'v' or Format == 'V':
-        var.streams.filter(subtype='mp4', progressive=True).order_by('resolution').last().download(dlpath)
+
+        listed_stream = var.streams.filter(only_video=True, subtype="webm").order_by("resolution")
+        listed_stream = str(listed_stream).replace("[", "").replace("]", "")
+
+        streams_reso = list(listed_stream.split(", "))
+        streams_reso[:] = [text.replace(text[:text.find("res=") + 5], "")
+                               .replace(text[text.find(" fps=") - 2:], "") for text in streams_reso]
+
+        streams_itag = list(listed_stream.split(", "))
+        streams_itag[:] = [text.replace(text[:text.find("itag=") + 6], "")
+                               .replace(text[text.find("mime_type=") - 2:], "") for text in streams_itag]
+
+        print(blankline + "Here's the available resolutions :\n")
+        for text in streams_reso:
+            print(text)
+
+        chosen_reso = input("Choose a reso [e.g. 1440]: ")
+        chosen_itag = streams_itag[streams_reso.index(str(chosen_reso))]
+
+        if int(chosen_reso) > 720:
+            print("Sorry, downloading videos with resolutions higher than 720p is not currently available.")
+        else:
+            print('Video titled [' + var.title + '] started downloading')
+            var = var.streams.filter(progressive=True, mime_type="video/mp4").get_by_resolution(chosen_reso + "p")
+            var.download(dlpath)
+            print('Video titled [' + var.title + '] has been downloaded')
+
     if Format == 'a' or Format == 'A':
+        print('Video titled [' + var.title + '] started downloading')
         var.streams.filter(only_audio=True, subtype='webm').order_by('bitrate').last().download(dlpath)
-    print('Video titled [' + var.title + '] has been downloaded')
+        print('Video titled [' + var.title + '] has been downloaded')
 
 #Some inputs
 Type = input('What yo want to download ? [v] for video and [p] for playlist : ')
@@ -28,7 +55,7 @@ Format = input(blankline + 'What format you want to download ? [v] for video and
 url = input(blankline + 'Write the link : ')
 
 #Download starts
-print(blankline + 'Download in progress, please wait...')
+print(blankline + 'Loading in progress, please wait...')
 if Type == 'v' or Type == 'V':
     video = YouTube(url)
     dl(video)
@@ -37,3 +64,5 @@ if Type == 'p' or Type == 'P':
     for video in playlist.videos:
         dl(video)
 print(blankline + 'Done !')
+
+
