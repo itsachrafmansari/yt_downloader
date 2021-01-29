@@ -1,4 +1,5 @@
 import os
+import ffmpeg
 from pytube.helpers import safe_filename
 from pydub import AudioSegment
 from pytube import YouTube, Playlist
@@ -36,13 +37,27 @@ def dl(var):
         chosen_reso = input("Choose a reso [e.g. 1440]: ")
         chosen_itag = streams_itag[streams_reso.index(str(chosen_reso))]
 
+        print('Video titled [' + var.title + '] started downloading')
+
         if int(chosen_reso) > 720:
-            print("Sorry, downloading videos with resolutions higher than 720p is not currently available.")
+            var.streams.get_by_itag(chosen_itag).download(dlpath)
+            var.streams.filter(only_audio=True, subtype="mp4").order_by("bitrate").last().download(dlpath)
+
+            filepath = os.path.join(dlpath, safe_filename(var.title))
+
+            video_stream = ffmpeg.input(filepath + ".webm")
+            audio_stream = ffmpeg.input(filepath + ".mp4")
+
+            ffmpeg.output(audio_stream, video_stream, filepath + " - HD.mp4").run()
+
+            os.remove(filepath + ".webm")
+            os.remove(filepath + ".mp4")
+
         else:
-            print('Video titled [' + var.title + '] started downloading')
             var = var.streams.filter(progressive=True, mime_type="video/mp4").get_by_resolution(chosen_reso + "p")
             var.download(dlpath)
-            print('Video titled [' + var.title + '] has been downloaded')
+
+        print('Video titled [' + var.title + '] has been downloaded')
 
     if Format == 'a' or Format == 'A':
         print('Video titled [' + var.title + '] started downloading')
@@ -64,5 +79,3 @@ if Type == 'p' or Type == 'P':
     for video in playlist.videos:
         dl(video)
 print(blankline + 'Done !')
-
-
