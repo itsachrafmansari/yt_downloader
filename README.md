@@ -21,8 +21,6 @@ pip install pytube, pydub, ffmpeg-python
 
 Open the main.py file and change the _dlpath_ to your downloads directory.
 
-If you are in a country/region
-
 ## Usage :
 1. Execute the program
 2. Type _V_ or _v_ for video, and _P_ or _p_ for playlist
