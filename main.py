@@ -1,14 +1,13 @@
-# --------------------------------- [ SETTING UP THE PROGRAM ] ---------------------------------
+# ███████████████████████████████████████████████ SETTING UP THE PROGRAM ███████████████████████████████████████████████
 import os
 import ffmpeg
 from pytube.helpers import safe_filename
 from pytube import YouTube, Playlist
 from pydub import AudioSegment
 
-dlpath = r'C:\Users\Achraf Mansari\Downloads'  # Choose a download folder
 
-
-# --------------[ Messages showed while using this program ]--------------
+# ═══════════════════════════════════════════[ Texts used in this program ]═════════════════════════════════════════════
+dlpath = r'C:\Users\YOUR_USERNAME\Downloads'  # Choose a download folder
 blankline = '_' * 70 + '\n'  # Some decoration !
 vid_pl = "What yo want to download ? [v] for video and [p] for playlist : "
 vid_aud = "What format you want to download ? [v] for video and [a] for audio : "
@@ -16,8 +15,7 @@ link = "Write the link : "
 choose_reso = "Choose a reso [e.g. 1440]: "
 
 
-# ----------------[ Defining some functions to use later ]----------------
-
+# ════════════════════════════════════[ Defining some functions to be used later ]══════════════════════════════════════
 # Indicates that a video started downloading
 def startdl(var):
     print('Video titled [' + var.title + '] started downloading')
@@ -26,18 +24,31 @@ def startdl(var):
 def finishdl(var):
     print('Video titled [' + var.title + '] has been downloaded')
 
-# Coverts downloaded audio files from there original format .webm to .mp3
-def convertaudio(var):
+# Download a video as an audio file
+def vid_to_aud(var):
+    startdl(var)
+    var.streams.filter(only_audio=True, subtype='webm').order_by('bitrate').last().download(dlpath)
     webmaudio = os.path.join(dlpath, safe_filename(var.title) + '.webm')
     mp3audio = os.path.join(dlpath, safe_filename(var.title) + '.mp3')
     AudioSegment.from_file(webmaudio, "webm").export(mp3audio, format="mp3")
     os.remove(webmaudio)
+    finishdl(var)
 
-# The download function
-def dl(var):
+# Download videos from a playlist
+def dl_from_pl(var):
+    if the_format == 'v' or the_format == 'V':
+        startdl(var)
+        var.streams.filter(subtype='mp4', progressive=True).order_by('resolution').last().download(dlpath)
+        finishdl(var)
+    if the_format == 'a' or the_format == 'A':
+        vid_to_aud(var)
 
-    if Format == 'v' or Format == 'V':
+# Download a single video
+def dl_a_vid(var):
 
+    if the_format == 'v' or the_format == 'V':
+
+        # Display available resolutions and choose one of them
         listed_stream = var.streams.filter(only_video=True, subtype="webm").order_by("resolution")
         listed_stream = str(listed_stream).replace("[", "").replace("]", "")
 
@@ -80,29 +91,23 @@ def dl(var):
             var.download(dlpath)
             finishdl(var)
 
-    if Format == 'a' or Format == 'A':
-        startdl(var)
-        var.streams.filter(only_audio=True, subtype='webm').order_by('bitrate').last().download(dlpath)
-        convertaudio(var)
-        finishdl(var)
+    if the_format == 'a' or the_format == 'A':
+        vid_to_aud(var)
 
 
-# --------------------------- [ THE USER INTERACTS WITH THE FOLLOWING CODE ] ---------------------------
-# Inputs to define what to download (Video/Playlist), in which file format (mp4/mp3) and what resolution if it's mp4
+# █████████████████████████████████████ THE USER INTERACTS WITH THE FOLLOWING CODE █████████████████████████████████████
 
-Type = input(vid_pl)
-Format = input(blankline + vid_aud)
-url = input(blankline + link)
+the_type = input(vid_pl)  # Define what to download (Video/Playlist)
+the_format = input(blankline + vid_aud)  # Which file format (mp4/mp3)
+url = input(blankline + link)  # Write the url of the video/playlist
+print(blankline + 'Loading, please wait...')  # Load video/playlist data
 
-print(blankline + 'Loading, please wait...')
-
-if Type == 'v' or Type == 'V':
+if the_type == 'v' or the_type == 'V':
     video = YouTube(url)
-    dl(video)
-
-if Type == 'p' or Type == 'P':
+    dl_a_vid(video)
+if the_type == 'p' or the_type == 'P':
     playlist = Playlist(url)
     for video in playlist.videos:
-        dl(video)
+        dl_from_pl(video)
 
 print(blankline + 'Done !')
