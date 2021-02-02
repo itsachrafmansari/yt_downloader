@@ -7,12 +7,15 @@ from pydub import AudioSegment
 
 
 # ═══════════════════════════════════════════[ Texts used in this program ]═════════════════════════════════════════════
-dlpath = r'C:\Users\YOUR_USERNAME\Downloads'  # Choose a download folder
+dlpath = r'C:\Users\Achraf Mansari\Downloads'  # Choose a download folder
 blankline = '_' * 70 + '\n'  # Some decoration !
 vid_pl = "What yo want to download ? [v] for video and [p] for playlist : "
-vid_aud = "What format you want to download ? [v] for video and [a] for audio : "
+vid_aud = "In what format you want to download it ? [v] for video and [a] for audio : "
 link = "Write the link : "
+avreso = "Here's the available resolutions :\n"
 choose_reso = "Choose a reso [e.g. 1440]: "
+loading = "Loading, please wait..."
+done = 'Done !'
 
 
 # ════════════════════════════════════[ Defining some functions to be used later ]══════════════════════════════════════
@@ -46,9 +49,10 @@ def dl_from_pl(var):
 # Download a single video
 def dl_a_vid(var):
 
+    # If the selected format is video, then run this
     if the_format == 'v' or the_format == 'V':
 
-        # Display available resolutions and choose one of them
+        # Get all available resolutions
         listed_stream = var.streams.filter(only_video=True, subtype="webm").order_by("resolution")
         listed_stream = str(listed_stream).replace("[", "").replace("]", "")
 
@@ -60,17 +64,21 @@ def dl_a_vid(var):
         streams_itag[:] = [text.replace(text[:text.find("itag=") + 6], "")
                                .replace(text[text.find("mime_type=") - 2:], "") for text in streams_itag]
 
-        print(blankline + "Here's the available resolutions :\n")
+        # Display all available resolutions
+        print(blankline + avreso)
         for text in streams_reso:
             print(text)
 
+        # Choose one of the available resolutions
         chosen_reso = input(choose_reso)
         chosen_itag = streams_itag[streams_reso.index(str(chosen_reso))]
 
-        if int(chosen_reso) > 720:
-            startdl(var)
+        startdl(var)
 
-            var.streams .get_by_itag(chosen_itag).download(dlpath)
+        # If the selected resolution is higher than 720p (e.g. 1080 and higher) then run this
+        if int(chosen_reso) > 720:
+
+            var.streams.get_by_itag(chosen_itag).download(dlpath)
             var.streams.filter(only_audio=True, subtype="mp4").order_by("bitrate").last().download(dlpath)
 
             filepath = os.path.join(dlpath, safe_filename(var.title))
@@ -83,14 +91,53 @@ def dl_a_vid(var):
             os.remove(filepath + ".webm")
             os.remove(filepath + ".mp4")
 
-            finishdl(var)
-
+        # If the selected resolution is equal to or lower than 720p then run this
         else:
-            startdl(var)
-            var = var.streams.filter(progressive=True, mime_type="video/mp4").get_by_resolution(chosen_reso + "p")
-            var.download(dlpath)
-            finishdl(var)
 
+            # Check if you can normally (video and audio combined) download the video in .mp4 format
+            reso = var.streams.filter(progressive=True, mime_type="video/mp4")\
+                .get_by_resolution(chosen_reso + "p")
+
+            # If yes, then download the video in .mp4 format
+            if reso:
+                var.streams.filter(progressive=True, mime_type="video/mp4")\
+                    .get_by_resolution(chosen_reso + "p").download(dlpath)
+
+            # If no, then run this
+            else:
+
+                # check if you can normally (video and audio combined) download the video in .webm format
+                reso = var.streams.filter(progressive=True, mime_type="video/webm")\
+                    .get_by_resolution(chosen_reso + "p")
+
+                # If yes, then download the video in .webm format and convert it to .mp4
+                if reso:
+                    var.streams.filter(progressive=True, mime_type="video/webm")\
+                        .get_by_resolution(chosen_reso + "p").download(dlpath)
+                    filepath = os.path.join(dlpath, safe_filename(var.title))
+                    webmvideo = ffmpeg.input(filepath + ".webm")
+                    ffmpeg.output(webmvideo, filepath + ".mp4")
+                    os.remove(filepath + ".webm")
+
+                # If no, then download video and audio separately, and combine them into a single .mp4 video file
+                else:
+                    var.streams.filter(progressive=False, mime_type="video/webm")\
+                        .get_by_resolution(chosen_reso + "p").download(dlpath)
+                    var.streams.filter(only_audio=True, subtype="mp4").order_by("bitrate").last().download(dlpath)
+
+                    filepath = os.path.join(dlpath, safe_filename(var.title))
+
+                    video_stream = ffmpeg.input(filepath + ".webm")
+                    audio_stream = ffmpeg.input(filepath + ".mp4")
+
+                    ffmpeg.output(audio_stream, video_stream, filepath + " - HD.mp4").run()
+
+                    os.remove(filepath + ".webm")
+                    os.remove(filepath + ".mp4")
+
+        finishdl(var)
+
+    # If the selected format is audio, then run this
     if the_format == 'a' or the_format == 'A':
         vid_to_aud(var)
 
@@ -100,14 +147,17 @@ def dl_a_vid(var):
 the_type = input(vid_pl)  # Define what to download (Video/Playlist)
 the_format = input(blankline + vid_aud)  # Which file format (mp4/mp3)
 url = input(blankline + link)  # Write the url of the video/playlist
-print(blankline + 'Loading, please wait...')  # Load video/playlist data
+print(blankline + loading)
 
 if the_type == 'v' or the_type == 'V':
+    # Load video data
     video = YouTube(url)
     dl_a_vid(video)
+
 if the_type == 'p' or the_type == 'P':
+    # Load playlist data
     playlist = Playlist(url)
     for video in playlist.videos:
         dl_from_pl(video)
 
-print(blankline + 'Done !')
+print(blankline + done)
