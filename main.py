@@ -59,6 +59,7 @@ def dl_a_vid(var):
         streams_reso = list(listed_stream.split(", "))
         streams_reso[:] = [text.replace(text[:text.find("res=") + 5], "")
                                .replace(text[text.find(" fps=") - 2:], "") for text in streams_reso]
+        streams_reso = list(dict.fromkeys(streams_reso))
 
         streams_itag = list(listed_stream.split(", "))
         streams_itag[:] = [text.replace(text[:text.find("itag=") + 6], "")
@@ -73,10 +74,9 @@ def dl_a_vid(var):
         chosen_reso = input(choose_reso)
         chosen_itag = streams_itag[streams_reso.index(str(chosen_reso))]
 
-        startdl(var)
-
         # If the selected resolution is higher than 720p (e.g. 1080 and higher) then run this
         if int(chosen_reso) > 720:
+            startdl(var)
 
             var.streams.get_by_itag(chosen_itag).download(dlpath)
             var.streams.filter(only_audio=True, subtype="mp4").order_by("bitrate").last().download(dlpath)
@@ -91,29 +91,28 @@ def dl_a_vid(var):
             os.remove(filepath + ".webm")
             os.remove(filepath + ".mp4")
 
+            finishdl(var)
+
         # If the selected resolution is equal to or lower than 720p then run this
         else:
+            startdl(var)
 
             # Check if you can normally (video and audio combined) download the video in .mp4 format
-            reso = var.streams.filter(progressive=True, mime_type="video/mp4")\
-                .get_by_resolution(chosen_reso + "p")
+            reso = var.streams.filter(progressive=True, mime_type="video/mp4").get_by_resolution(chosen_reso + "p")
 
             # If yes, then download the video in .mp4 format
             if reso:
-                var.streams.filter(progressive=True, mime_type="video/mp4")\
-                    .get_by_resolution(chosen_reso + "p").download(dlpath)
+                var.streams.filter(progressive=True, mime_type="video/mp4").get_by_resolution(chosen_reso + "p").download(dlpath)
 
             # If no, then run this
             else:
 
                 # check if you can normally (video and audio combined) download the video in .webm format
-                reso = var.streams.filter(progressive=True, mime_type="video/webm")\
-                    .get_by_resolution(chosen_reso + "p")
+                reso = var.streams.filter(progressive=True, mime_type="video/webm").get_by_resolution(chosen_reso + "p")
 
                 # If yes, then download the video in .webm format and convert it to .mp4
                 if reso:
-                    var.streams.filter(progressive=True, mime_type="video/webm")\
-                        .get_by_resolution(chosen_reso + "p").download(dlpath)
+                    var.streams.filter(progressive=True, mime_type="video/webm").get_by_resolution(chosen_reso + "p").download(dlpath)
                     filepath = os.path.join(dlpath, safe_filename(var.title))
                     webmvideo = ffmpeg.input(filepath + ".webm")
                     ffmpeg.output(webmvideo, filepath + ".mp4")
@@ -121,8 +120,7 @@ def dl_a_vid(var):
 
                 # If no, then download video and audio separately, and combine them into a single .mp4 video file
                 else:
-                    var.streams.filter(progressive=False, mime_type="video/webm")\
-                        .get_by_resolution(chosen_reso + "p").download(dlpath)
+                    var.streams.filter(progressive=False, mime_type="video/webm").get_by_resolution(chosen_reso + "p").download(dlpath)
                     var.streams.filter(only_audio=True, subtype="mp4").order_by("bitrate").last().download(dlpath)
 
                     filepath = os.path.join(dlpath, safe_filename(var.title))
@@ -135,7 +133,7 @@ def dl_a_vid(var):
                     os.remove(filepath + ".webm")
                     os.remove(filepath + ".mp4")
 
-        finishdl(var)
+            finishdl(var)
 
     # If the selected format is audio, then run this
     if the_format == 'a' or the_format == 'A':
@@ -161,3 +159,5 @@ if the_type == 'p' or the_type == 'P':
         dl_from_pl(video)
 
 print(blankline + done)
+
+input('\n \n \n Pess enter to exit')
