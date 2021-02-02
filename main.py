@@ -43,10 +43,10 @@ def dl_from_pl(var):
         startdl(var)
         var.streams.filter(subtype='mp4', progressive=True).order_by('resolution').last().download(dlpath)
         finishdl(var)
-    if the_format == 'a' or the_format == 'A':
+    elif the_format == 'a' or the_format == 'A':
         vid_to_aud(var)
 
-# Download a single video
+# ═══════════════════════════════[ Defining the function that download single videos ]══════════════════════════════════
 def dl_a_vid(var):
 
     # If the selected format is video, then run this
@@ -57,26 +57,27 @@ def dl_a_vid(var):
         listed_stream = str(listed_stream).replace("[", "").replace("]", "")
 
         streams_reso = list(listed_stream.split(", "))
-        streams_reso[:] = [text.replace(text[:text.find("res=") + 5], "")
-                               .replace(text[text.find(" fps=") - 2:], "") for text in streams_reso]
-        streams_reso = list(dict.fromkeys(streams_reso))
+        streams_reso[:] = [i.replace(i[:i.find("res=") + 5], "").replace(i[i.find("fps=") - 2:], "") for i in streams_reso]
+        streams_reso = list(dict.fromkeys(streams_reso))  # Remove duplicated resolutions
 
         streams_itag = list(listed_stream.split(", "))
-        streams_itag[:] = [text.replace(text[:text.find("itag=") + 6], "")
-                               .replace(text[text.find("mime_type=") - 2:], "") for text in streams_itag]
+        streams_itag[:] = [i.replace(i[:i.find("itag=") + 6], "").replace(i[i.find("mime_type=") - 2:], "") for i in streams_itag]
 
         # Display all available resolutions
         print(blankline + avreso)
-        for text in streams_reso:
-            print(text)
+        for i in range(len(streams_reso)):
+            print(streams_reso[i])
 
-        # Choose one of the available resolutions
+        # Choose one of the available resolutions (e.g. 360p)
         chosen_reso = input(choose_reso)
-        chosen_itag = streams_itag[streams_reso.index(str(chosen_reso))]
 
-        # If the selected resolution is higher than 720p (e.g. 1080 and higher) then run this
-        if int(chosen_reso) > 720:
-            startdl(var)
+        # Indicates the start of the download process
+        startdl(var)
+
+        # If the selected resolution is higher than 720p (e.g. 1080p and higher) then run this
+        if int(chosen_reso.replace("p","")) > 720:
+
+            chosen_itag = streams_itag[streams_reso.index(str(chosen_reso))]
 
             var.streams.get_by_itag(chosen_itag).download(dlpath)
             var.streams.filter(only_audio=True, subtype="mp4").order_by("bitrate").last().download(dlpath)
@@ -86,33 +87,32 @@ def dl_a_vid(var):
             video_stream = ffmpeg.input(filepath + ".webm")
             audio_stream = ffmpeg.input(filepath + ".mp4")
 
-            ffmpeg.output(audio_stream, video_stream, filepath + " - HD.mp4").run()
+            final_file = filepath + " - HD.mp4"
+            ffmpeg.output(audio_stream, video_stream, final_file).run()
 
             os.remove(filepath + ".webm")
             os.remove(filepath + ".mp4")
-
-            finishdl(var)
+            os.rename(final_file, final_file.replace(" - HD",""))
 
         # If the selected resolution is equal to or lower than 720p then run this
         else:
-            startdl(var)
 
             # Check if you can normally (video and audio combined) download the video in .mp4 format
-            reso = var.streams.filter(progressive=True, mime_type="video/mp4").get_by_resolution(chosen_reso + "p")
+            reso = var.streams.filter(progressive=True, mime_type="video/mp4", resolution=chosen_reso)
 
             # If yes, then download the video in .mp4 format
             if reso:
-                var.streams.filter(progressive=True, mime_type="video/mp4").get_by_resolution(chosen_reso + "p").download(dlpath)
+                var.streams.filter(progressive=True, mime_type="video/mp4", resolution=chosen_reso).first().download(dlpath)
 
             # If no, then run this
             else:
 
                 # check if you can normally (video and audio combined) download the video in .webm format
-                reso = var.streams.filter(progressive=True, mime_type="video/webm").get_by_resolution(chosen_reso + "p")
+                reso = var.streams.filter(progressive=True, mime_type="video/webm", resolution=chosen_reso)
 
                 # If yes, then download the video in .webm format and convert it to .mp4
                 if reso:
-                    var.streams.filter(progressive=True, mime_type="video/webm").get_by_resolution(chosen_reso + "p").download(dlpath)
+                    var.streams.filter(progressive=True, mime_type="video/webm", resolution=chosen_reso).first().download(dlpath)
                     filepath = os.path.join(dlpath, safe_filename(var.title))
                     webmvideo = ffmpeg.input(filepath + ".webm")
                     ffmpeg.output(webmvideo, filepath + ".mp4")
@@ -120,23 +120,26 @@ def dl_a_vid(var):
 
                 # If no, then download video and audio separately, and combine them into a single .mp4 video file
                 else:
-                    var.streams.filter(progressive=False, mime_type="video/webm").get_by_resolution(chosen_reso + "p").download(dlpath)
+                    var.streams.filter(progressive=False, mime_type="video/webm", resolution=chosen_reso).first().download(dlpath)
                     var.streams.filter(only_audio=True, subtype="mp4").order_by("bitrate").last().download(dlpath)
 
                     filepath = os.path.join(dlpath, safe_filename(var.title))
 
                     video_stream = ffmpeg.input(filepath + ".webm")
                     audio_stream = ffmpeg.input(filepath + ".mp4")
+                    final_file = filepath + " - HD.mp4"
 
-                    ffmpeg.output(audio_stream, video_stream, filepath + " - HD.mp4").run()
+                    ffmpeg.output(audio_stream, video_stream, final_file).run()
 
                     os.remove(filepath + ".webm")
                     os.remove(filepath + ".mp4")
+                    os.rename(final_file, final_file.replace(" - HD",""))
 
-            finishdl(var)
+        # Indicates the finish of the download process
+        finishdl(var)
 
     # If the selected format is audio, then run this
-    if the_format == 'a' or the_format == 'A':
+    elif the_format == 'a' or the_format == 'A':
         vid_to_aud(var)
 
 
@@ -160,4 +163,4 @@ if the_type == 'p' or the_type == 'P':
 
 print(blankline + done)
 
-input('\n \n \n Pess enter to exit')
+input('Press enter to exit')
