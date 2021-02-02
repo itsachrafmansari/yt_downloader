@@ -5,6 +5,7 @@ A simple Python program to download YouTube videos and playlists (in mp4/mp3 for
 
 ## Getting Started :
 ### Libraries :
+
 This program is based on :
 * PyTube (Loading YouTube videos)
 * PyDub (Converting audio files to mp3)
@@ -13,28 +14,29 @@ This program is based on :
 You can simply execute the requirements installer to 
 automatically install all the necessary libraries, or you can 
 install them manually using this command :
-```
+```Bash
 pip install pytube pydub ffmpeg-python
 ```
-
 ### Edits :
 Open the `main.py` file and change the `dlpath` to your downloads directory.
-
+***
 Run this command (in Python console) :
-```
+```Python
 import os, pytube; print(os.path.dirname(pytube.__file__))
 ```
 
-Go to the directory you get, open `request.py`, search for :
-``
-base_headers = {"User-Agent": "Mozilla/5.0"}
-``
-and change it to :
-``
-base_headers = {"User-Agent": "Mozilla/5.0", "accept-language": "en-US,en"}
-``
+Go to the directory you get, open `request.py` and search for :</br>
+``base_headers = {"User-Agent": "Mozilla/5.0"``</br>
+Change it to :</br>
+``base_headers = {"User-Agent": "Mozilla/5.0", "accept-language": "en-US,en"}``
+***
+Delete `query.py` from the directory and replace it with the one
+from this repository.
+
+***
 
 Now you are ready !
+
 ## Usage :
 1. Run the main file.
 2. Type `V` or `v` for video, and `P` or `p` for playlist.
