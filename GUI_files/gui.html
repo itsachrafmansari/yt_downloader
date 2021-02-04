@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube Videos Downloader</title>
+    <link rel="stylesheet" href="css.css">
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript" src="js.js"></script>
+</head>
+<body>
+    <div id="bg"></div>
+    <div id="form">
+        <div id="title">YouTube Videos Downloader</div>
+        <div id="desc">Enter the video/playlist url below :</div>
+        <form>
+            <input id="url" type="url" value="" />
+            <select id="type">
+                <option value="v">Video</option>
+                <option value="p">Playlist</option>
+            </select>
+            <button id="button" type="submit" value="download" onclick="geturl()">Download it!</button>
+        </form>
+    </div>
+</body>
+</html>
