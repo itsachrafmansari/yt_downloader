@@ -14,9 +14,16 @@
         <div id="desc">Enter the video/playlist url below :</div>
         <form>
             <input id="url" type="url" value="" />
-            <select id="type">
-                <option value="v">Video</option>
-                <option value="p">Playlist</option>
+            <select id="resolutions" style="display:none;">
+                <option style="display:none;">Resolutions</option>
+                <option value="144" style="display:none;">144p</option>
+                <option value="240" style="display:none;">240p</option>
+                <option value="360" style="display:none;">360p</option>
+                <option value="480" style="display:none;">480p</option>
+                <option value="720" style="display:none;">720p</option>
+                <option value="1080" style="display:none;">1080p</option>
+                <option value="1440" style="display:none;">2K</option>
+                <option value="2160" style="display:none;">4K</option>
             </select>
             <button id="button" type="submit" value="download" onclick="geturl()">Download it!</button>
         </form>
