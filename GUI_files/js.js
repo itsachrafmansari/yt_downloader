@@ -1,11 +1,11 @@
 function geturl() {
-    var url = document.getElementById('url').value;
-    var selected_type = document.getElementById('type');
-    var type = selected_type.options[selected_type.selectedIndex].value;
-
-    if (type == "v") {
-        eel.video_dl(url);
-    } else if (type == "p") {
+    
+    var url = document.getElementById("url").value;
+    var type = url.includes("playlist");
+    
+    if (type) {
         eel.playlist_dl(url);
+    } else {
+        eel.video_dl(url);
     }
 }
