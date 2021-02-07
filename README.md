@@ -29,4 +29,4 @@ Then, open the `main.py` file and change the `dlpath` to your downloads director
 
 If you are downloading a single video, a list of all available
  resolutions will appear then you will have to choose one of 
- them by typing it as a number (e.g. `1080p`).
+ them by typing it (e.g. `1080p`).
