@@ -12,8 +12,8 @@ blankline = '_' * 70 + '\n'  # Some decoration !
 vid_pl = "What yo want to download ? [v] for video and [p] for playlist : "
 vid_aud = "In what format you want to download it ? [v] for video and [a] for audio : "
 link = "Write the link : "
-avreso = "Here's the available resolutions :\n"
-choose_reso = "Choose a reso [e.g. 1440]: "
+avreso = "Here's the available resolutions :"
+choose_reso = "Choose a reso [e.g. 1440p]: "
 loading = "Loading, please wait..."
 done = 'Done !'
 
@@ -68,7 +68,7 @@ def dl_a_vid(var):
         for i in range(len(streams_reso)):
             print(streams_reso[i])
 
-        # Choose one of the available resolutions (e.g. 360p)
+        # Choose one of the available resolutions (e.g. 1440p)
         chosen_reso = input(choose_reso)
 
         # Indicates the start of the download process
