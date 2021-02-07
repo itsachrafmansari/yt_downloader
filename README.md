@@ -16,10 +16,10 @@ install them manually using this command :
 ```Bash
 pip install pytube pydub ffmpeg-python
 ```
-Then, open the `main.py` file and change the `dlpath` to your downloads directory without any `\` or `/`from its end.
-> e.g. **C:\Users\Username\Downloads** for windows users
+Then, open the `main.py` file and change the `dlpath` to your downloads directory without any `\` or `/`from its end :
+> e.g. **C:\Users\Username\Downloads** for windows users.
 
-> e.g. **/home/Username/Downloads** for linux users).
+> e.g. **/home/Username/Downloads** for linux users.
 
 ## Usage
 1. Run the main file.
