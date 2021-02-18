@@ -1,3 +1,2 @@
 pytube
-pydub
 ffmpeg-python
