@@ -3,7 +3,6 @@ import os
 import ffmpeg
 from pytube.helpers import safe_filename
 from pytube import YouTube, Playlist
-from pydub import AudioSegment
 
 
 # ═══════════════════════════════════════════[ Texts used in this program ]═════════════════════════════════════════════
@@ -31,10 +30,11 @@ def finishdl(var):
 def vid_to_aud(var):
     startdl(var)
     var.streams.filter(only_audio=True, subtype='webm').order_by('bitrate').last().download(dlpath)
-    webmaudio = os.path.join(dlpath, safe_filename(var.title) + '.webm')
-    mp3audio = os.path.join(dlpath, safe_filename(var.title) + '.mp3')
-    AudioSegment.from_file(webmaudio, "webm").export(mp3audio, format="mp3")
-    os.remove(webmaudio)
+    filepath = os.path.join(dlpath, safe_filename(var.title))
+    webmaudio = ffmpeg.input(filepath + '.webm')
+    mp3audio = filepath + '.mp3'
+    ffmpeg.output(webmaudio, mp3audio).run()
+    os.remove(filepath + '.webm')
     finishdl(var)
 
 # Download videos from a playlist
@@ -75,7 +75,7 @@ def dl_a_vid(var):
         startdl(var)
 
         # If the selected resolution is higher than 720p (e.g. 1080p and higher) then run this
-        if int(chosen_reso.replace("p","")) > 720:
+        if int(chosen_reso.replace("p", "")) > 720:
 
             chosen_itag = streams_itag[streams_reso.index(str(chosen_reso))]
 
@@ -92,7 +92,7 @@ def dl_a_vid(var):
 
             os.remove(filepath + ".webm")
             os.remove(filepath + ".mp4")
-            os.rename(final_file, final_file.replace(" - HD",""))
+            os.rename(final_file, final_file.replace(" - HD", ""))
 
         # If the selected resolution is equal to or lower than 720p then run this
         else:
@@ -133,7 +133,7 @@ def dl_a_vid(var):
 
                     os.remove(filepath + ".webm")
                     os.remove(filepath + ".mp4")
-                    os.rename(final_file, final_file.replace(" - HD",""))
+                    os.rename(final_file, final_file.replace(" - HD", ""))
 
         # Indicates the finish of the download process
         finishdl(var)
