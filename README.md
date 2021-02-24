@@ -15,11 +15,12 @@ install them manually using this command :
 ```Bash
 pip install pytube ffmpeg-python
 ```
-Then, open the `main.py` file and change the `dlpath` to your downloads directory without any `\` or `/`from its end :
+Then, open the `main.py` file and change the `dlpath` to your downloads directory :
 > e.g. **C:\Users\Username\Downloads** for windows users.
 
 > e.g. **/home/Username/Downloads** for linux users.
 
+... and make sure the last character is not `\` or `/`.
 ## Usage
 1. Run the main file.
 2. Type `V` or `v` for video, and `P` or `p` for playlist.
