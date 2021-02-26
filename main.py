@@ -8,6 +8,16 @@ from pytube import YouTube, Playlist
 # ═══════════════════════════════════════════[ Texts used in this program ]═════════════════════════════════════════════
 dlpath = r'C:\Users\Achraf Mansari\Downloads'  # Choose a download folder
 blankline = '_' * 70 + '\n'  # Some decoration !
+welcomeText = '''
+           ▄█████████████████████▄
+          ██████████  ▀████████████
+          ██████████     ▀█████████
+          ██████████     ▄█████████
+          ██████████  ▄████████████
+           ▀█████████████████████▀
+
+      YOUTUBE VIDEO/PLAYLIST DOWNLOADER
+'''
 vid_pl = "What yo want to download ? [v] for video and [p] for playlist : "
 vid_aud = "In what format you want to download it ? [v] for video and [a] for audio : "
 link = "Write the link : "
@@ -54,19 +64,17 @@ def dl_a_vid(var):
 
         # Get all available resolutions
         listed_stream = var.streams.filter(only_video=True, subtype="webm").order_by("resolution")
-        listed_stream = str(listed_stream).replace("[", "").replace("]", "")
-
-        streams_reso = list(listed_stream.split(", "))
-        streams_reso[:] = [i.replace(i[:i.find("res=") + 5], "").replace(i[i.find("fps=") - 2:], "") for i in streams_reso]
-        streams_reso = list(dict.fromkeys(streams_reso))  # Remove duplicated resolutions
-
-        streams_itag = list(listed_stream.split(", "))
-        streams_itag[:] = [i.replace(i[:i.find("itag=") + 6], "").replace(i[i.find("mime_type=") - 2:], "") for i in streams_itag]
+        streams_reso = []
 
         # Display all available resolutions
         print(blankline + avreso)
-        for i in range(len(streams_reso)):
-            print(streams_reso[i])
+        for elem in listed_stream:
+            areso = str(elem)
+            areso = areso.replace(areso[:areso.find("res=") + 5], "")
+            areso = areso.replace(areso[areso.find("fps=") - 2:], "")
+            if areso not in streams_reso:
+                streams_reso.append(areso)
+                print(areso)
 
         # Choose one of the available resolutions (e.g. 1440p)
         chosen_reso = input(choose_reso)
@@ -77,9 +85,7 @@ def dl_a_vid(var):
         # If the selected resolution is higher than 720p (e.g. 1080p and higher) then run this
         if int(chosen_reso.replace("p", "")) > 720:
 
-            chosen_itag = streams_itag[streams_reso.index(str(chosen_reso))]
-
-            var.streams.get_by_itag(chosen_itag).download(dlpath)
+            var.streams.filter(progressive=False, mime_type="video/webm", resolution=chosen_reso).first().download(dlpath)
             var.streams.filter(only_audio=True, subtype="mp4").order_by("bitrate").last().download(dlpath)
 
             filepath = os.path.join(dlpath, safe_filename(var.title))
@@ -144,7 +150,7 @@ def dl_a_vid(var):
 
 
 # █████████████████████████████████████ THE USER INTERACTS WITH THE FOLLOWING CODE █████████████████████████████████████
-
+print(welcomeText + blankline)
 the_type = input(vid_pl)  # Define what to download (Video/Playlist)
 the_format = input(blankline + vid_aud)  # Which file format (mp4/mp3)
 url = input(blankline + link)  # Write the url of the video/playlist
@@ -161,6 +167,6 @@ if the_type == 'p' or the_type == 'P':
     for video in playlist.videos:
         dl_from_pl(video)
 
-print(blankline + done)
+print(blankline, done, "\n", "█" * 70)
 
 input('Press enter to exit')
