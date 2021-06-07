@@ -1,59 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <title>YouTube Videos Downloader</title>
-    <link rel="stylesheet" href="css.css">
-    <script type="text/javascript" src="/eel.js"></script>
-    <script type="text/javascript" src="js.js"></script>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>YouTube Videos Downloader</title>
+        <link rel="stylesheet" href="css.css">
+        <script type="text/javascript" src="/eel.js"></script>
+        <script type="text/javascript" src="js.js"></script>
+    </head>
 
-<body>
-    <div id="bg"></div>
-    <div id="form">
-        <div id="platforms">
-            <a class="title selected" id="youtube" href="#" onclick="youtube()">YT</a>
-            <a class="title" id="facebook" href="#" onclick="facebook()">FB</a>
-            <a class="title" id="instagram" href="#" onclick="instagram()">IG</a>
+    <body>
+        <div id="bg"></div>
+        <div id="form">
+            <div id="platforms">
+                <a class="title selected" id="youtube" href="#" onclick="youtube()">YT</a>
+                <a class="title" id="facebook" href="#" onclick="facebook()">FB</a>
+                <a class="title" id="instagram" href="#" onclick="instagram()">IG</a>
+            </div>
+            <div id="desc">Enter the video/playlist url below :</div>
+            <form>
+                <input id="url" type="url" value="" />
+                <div id="video">
+                    <div id="thumbnail">
+                    </div>
+                    <div id="info">
+                        <table>
+                            <tr>
+                                <th style="font-weight: 800;font-size: 15px">This is a video title test from youtube it a little bit ...</th>
+                            </tr>
+                            <tr>
+                                <th style="font-weight: 100;font-size: 12px">10min 22s</th>
+                            </tr>
+                            <tr>
+                                <th style="font-weight: 100;font-size: 12px">3435353 views</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div id="b">
+                    <select id="resolutions">
+                        <option class="resolution" id="reso" >Resolutions</option>
+                        <option class="resolution yt_reso" value="144" >144p</option>
+                        <option class="resolution yt_reso" value="240" >240p</option>
+                        <option class="resolution yt_reso" value="360" >360p</option>
+                        <option class="resolution yt_reso" value="480" >480p</option>
+                        <option class="resolution yt_reso" value="720" >720p</option>
+                        <option class="resolution yt_reso" value="1080" >1080p</option>
+                        <option class="resolution yt_reso" value="1440" >2K</option>
+                        <option class="resolution yt_reso" value="2160" >4K</option>
+                        <option class="resolution fb_reso" value="HD" >HD</option>
+                        <option class="resolution fb_reso" value="SD" >SD</option>
+                    </select>
+                    <button id="button" type="submit" value="download" onclick="geturl()">Load it !</button>
+                </div>
+            </form>
         </div>
-        <div id="desc">Enter the video/playlist url below :</div>
-        <form>
-            <input id="url" type="url" value="" />
-            <div id="video">
-                <div id="thumbnail">
-                </div>
-                <div id="info">
-                    <table>
-                        <tr>
-                            <th style="font-weight: 800;font-size: 15px">This is a video title test from youtube it a little bit ...</th>
-                        </tr>
-                        <tr>
-                            <th style="font-weight: 100;font-size: 12px">10min 22s</th>
-                        </tr>
-                        <tr>
-                            <th style="font-weight: 100;font-size: 12px">3435353 views</th>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            <div id="b">
-                <select id="resolutions">
-                    <option class="resolution" id="reso" >Resolutions</option>
-                    <option class="resolution yt_reso" value="144" >144p</option>
-                    <option class="resolution yt_reso" value="240" >240p</option>
-                    <option class="resolution yt_reso" value="360" >360p</option>
-                    <option class="resolution yt_reso" value="480" >480p</option>
-                    <option class="resolution yt_reso" value="720" >720p</option>
-                    <option class="resolution yt_reso" value="1080" >1080p</option>
-                    <option class="resolution yt_reso" value="1440" >2K</option>
-                    <option class="resolution yt_reso" value="2160" >4K</option>
-                    <option class="resolution fb_reso" value="HD" >HD</option>
-                    <option class="resolution fb_reso" value="SD" >SD</option>
-                </select>
-                <button id="button" type="submit" value="download" onclick="geturl()">Load it !</button>
-            </div>
-        </form>
-    </div>
-</body>
+    </body>
 </html>
