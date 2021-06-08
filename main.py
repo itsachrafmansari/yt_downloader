@@ -1,8 +1,8 @@
 # ███████████████████████████████████████████████ SETTING UP THE PROGRAM ███████████████████████████████████████████████
 import os
 import ffmpeg
-from pytube.helpers import safe_filename
 from pytube import YouTube, Playlist
+from pytube.helpers import safe_filename
 
 
 # ═══════════════════════════════════════════[ Texts used in this program ]═════════════════════════════════════════════
@@ -18,7 +18,6 @@ welcomeText = '''
 
       YOUTUBE VIDEO/PLAYLIST DOWNLOADER
 '''
-vid_pl = "What yo want to download ? [v] for video and [p] for playlist : "
 vid_aud = "In what format you want to download it ? [v] for video and [a] for audio : "
 link = "Write the link : "
 avreso = "Here's the available resolutions :"
@@ -30,11 +29,25 @@ done = 'Done !'
 # ════════════════════════════════════[ Defining some functions to be used later ]══════════════════════════════════════
 # Indicates that a video started downloading
 def startdl(var):
-    print('Video titled [' + var.title + '] started downloading')
+    print('Video titled [' + var.title.upper() + '] started downloading')
+
 
 # Indicates that a video finished downloading
 def finishdl(var):
-    print('Video titled [' + var.title + '] has been downloaded')
+    print('Video titled [' + var.title.upper() + '] has been downloaded')
+
+
+def fsize(var, x):
+    filesize = var.streams.filter(progressive=False, mime_type="video/mp4", resolution=x).first().filesize
+    if 1000 >= filesize > 0:
+        print(x, "[", filesize, "B]")
+    elif 1000 ** 2 >= filesize > 1000:
+        print(x, "[", round(filesize / 1024, 1), "KB]")
+    elif 1000 ** 3 >= filesize > 1000 ** 2:
+        print(x, "[", round(filesize / (1024 ** 2), 1), "MB]")
+    elif filesize > 1000 ** 3:
+        print(x, "[", round(filesize / (1024 ** 3), 1), "GB]")
+
 
 # Download a video as an audio file
 def vid_to_aud(var):
@@ -47,6 +60,7 @@ def vid_to_aud(var):
     os.remove(filepath + '.webm')
     finishdl(var)
 
+
 # Download videos from a playlist
 def dl_from_pl(var):
     if the_format == 'v' or the_format == 'V':
@@ -56,7 +70,8 @@ def dl_from_pl(var):
     elif the_format == 'a' or the_format == 'A':
         vid_to_aud(var)
 
-# ═══════════════════════════════[ Defining the function that download single videos ]══════════════════════════════════
+
+# ════════════════════════════[ Defining the function that download videos individually]════════════════════════════════
 def dl_a_vid(var):
 
     # If the selected format is video, then run this
@@ -74,7 +89,7 @@ def dl_a_vid(var):
             areso = areso.replace(areso[areso.find("fps=") - 2:], "")
             if areso not in streams_reso:
                 streams_reso.append(areso)
-                print(areso)
+                fsize(var, areso)
 
         # Choose one of the available resolutions (e.g. 1440p)
         chosen_reso = input(choose_reso)
@@ -134,7 +149,6 @@ def dl_a_vid(var):
                     video_stream = ffmpeg.input(filepath + ".webm")
                     audio_stream = ffmpeg.input(filepath + ".mp4")
                     final_file = filepath + " - HD.mp4"
-
                     ffmpeg.output(audio_stream, video_stream, final_file).run()
 
                     os.remove(filepath + ".webm")
@@ -150,22 +164,20 @@ def dl_a_vid(var):
 
 
 # █████████████████████████████████████ THE USER INTERACTS WITH THE FOLLOWING CODE █████████████████████████████████████
-print(welcomeText + blankline)
-the_type = input(vid_pl)  # Define what to download (Video/Playlist)
+print(welcomeText)
 the_format = input(blankline + vid_aud)  # Which file format (mp4/mp3)
 url = input(blankline + link)  # Write the url of the video/playlist
 print(blankline + loading)
 
-if the_type == 'v' or the_type == 'V':
-    # Load video data
-    video = YouTube(url)
-    dl_a_vid(video)
-
-if the_type == 'p' or the_type == 'P':
+if "playlist?list" in url:
     # Load playlist data
     playlist = Playlist(url)
     for video in playlist.videos:
         dl_from_pl(video)
+else:
+    # Load video data
+    video = YouTube(url)
+    dl_a_vid(video)
 
 print(blankline, done, "\n", "█" * 70)
 
