@@ -6,7 +6,7 @@ from pytube.helpers import safe_filename
 
 
 # ═══════════════════════════════════════════[ Texts used in this program ]═════════════════════════════════════════════
-dlpath = r'C:\Users\Achraf Mansari\Downloads'  # Choose a download folder
+dlpath = r'C:\Users\YOUR_USERNAME\Downloads'  # Choose a download folder
 blankline = '_' * 70 + '\n'  # Some decoration !
 welcomeText = '''
            ▄█████████████████████▄
@@ -18,7 +18,7 @@ welcomeText = '''
 
       YOUTUBE VIDEO/PLAYLIST DOWNLOADER
 '''
-vid_aud = "In what format you want to download it ? [v] for video and [a] for audio : "
+vid_aud = "V for video, or A for audio : "
 link = "Write the link : "
 avreso = "Here's the available resolutions :"
 choose_reso = "Choose a reso [e.g. 1440p]: "
@@ -29,24 +29,12 @@ done = 'Done !'
 # ════════════════════════════════════[ Defining some functions to be used later ]══════════════════════════════════════
 # Indicates that a video started downloading
 def startdl(var):
-    print('Video titled [' + var.title.upper() + '] started downloading')
+    print('Video titled [' + var.title.upper()[:50] + '] started downloading')
 
 
 # Indicates that a video finished downloading
 def finishdl(var):
-    print('Video titled [' + var.title.upper() + '] has been downloaded')
-
-
-def fsize(var, x):
-    filesize = var.streams.filter(progressive=False, mime_type="video/mp4", resolution=x).first().filesize
-    if 1000 >= filesize > 0:
-        print(x, "[", filesize, "B]")
-    elif 1000 ** 2 >= filesize > 1000:
-        print(x, "[", round(filesize / 1024, 1), "KB]")
-    elif 1000 ** 3 >= filesize > 1000 ** 2:
-        print(x, "[", round(filesize / (1024 ** 2), 1), "MB]")
-    elif filesize > 1000 ** 3:
-        print(x, "[", round(filesize / (1024 ** 3), 1), "GB]")
+    print('Video titled [' + var.title.upper()[:50] + '] has been downloaded')
 
 
 # Download a video as an audio file
@@ -89,7 +77,7 @@ def dl_a_vid(var):
             areso = areso.replace(areso[areso.find("fps=") - 2:], "")
             if areso not in streams_reso:
                 streams_reso.append(areso)
-                fsize(var, areso)
+                print(areso)
 
         # Choose one of the available resolutions (e.g. 1440p)
         chosen_reso = input(choose_reso)
@@ -165,8 +153,8 @@ def dl_a_vid(var):
 
 # █████████████████████████████████████ THE USER INTERACTS WITH THE FOLLOWING CODE █████████████████████████████████████
 print(welcomeText)
-the_format = input(blankline + vid_aud)  # Which file format (mp4/mp3)
 url = input(blankline + link)  # Write the url of the video/playlist
+the_format = input(blankline + vid_aud)  # Which file format (mp4/mp3)
 print(blankline + loading)
 
 if "playlist?list" in url:
