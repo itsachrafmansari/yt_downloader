@@ -1,8 +1,3 @@
-<h1 align="center">YouTube Videos Downloader</h1>
-<p align="center">
-A simple Python program to download YouTube videos and playlists (in mp4/mp3 format).
-</p>
-
 ## Dependencies
 This program is based on :
 * [PyTube](https://github.com/pytube/pytube) (Downloading YouTube videos)
