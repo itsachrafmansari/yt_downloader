@@ -9,13 +9,13 @@ This program is based on :
 
 1. You can simply execute the `requirements_installer.py` to automatically install all the necessary libraries, or you can install them from pypi manually using this command :
 ```bash
-$ python -m pip install pytube
+python -m pip install pytube
 ```
 
 Sometime, the pypi release becomes slightly outdated. So you can install them from the source using this command :
 
 ```bash
-$ python -m pip install git+https://github.com/pytube/pytube
+python -m pip install git+https://github.com/pytube/pytube
 ```
 
 <br/>
