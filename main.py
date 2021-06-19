@@ -6,7 +6,7 @@ from pytube.helpers import safe_filename
 
 
 # ═══════════════════════════════════════════[ Texts used in this program ]═════════════════════════════════════════════
-dlpath = r'C:\Users\Achraf Mansari\Downloads'  # Choose a download folder
+dlpath = r'C:\Users\YOUR_USERNAME\Downloads'  # Choose a download folder
 blankline = '_' * 70 + '\n'  # Some decoration !
 welcomeText = '''
            ▄█████████████████████▄
@@ -18,7 +18,7 @@ welcomeText = '''
 
       YOUTUBE VIDEO/PLAYLIST DOWNLOADER
 '''
-vid_aud = "In what format you want to download it ? [v] for video and [a] for audio : "
+vid_aud = "V for video, or A for audio : "
 link = "Write the link : "
 avreso = "Here's the available resolutions :"
 choose_reso = "Choose a reso [e.g. 1440p]: "
@@ -165,8 +165,8 @@ def dl_a_vid(var):
 
 # █████████████████████████████████████ THE USER INTERACTS WITH THE FOLLOWING CODE █████████████████████████████████████
 print(welcomeText)
-the_format = input(blankline + vid_aud)  # Which file format (mp4/mp3)
 url = input(blankline + link)  # Write the url of the video/playlist
+the_format = input(blankline + vid_aud)  # Which file format (mp4/mp3)
 print(blankline + loading)
 
 if "playlist?list" in url:
