@@ -22,7 +22,7 @@ python -m pip install git+https://github.com/pytube/pytube
 
 2. Then, open the `main.py` file and change the `dlpath` to your downloads directory :
 > e.g. **C:\Users\Username\Downloads** for windows users.
-
+> 
 > e.g. **/home/Username/Downloads** for linux users.
 
 ... and make sure the last character is not `\` or `/`.
