@@ -9,10 +9,10 @@ This program is based on :
 
 1. You can simply execute the `requirements_installer.py` to automatically install all the necessary libraries, or you can install them from pypi manually using this command :
 ```bash
-python -m pip install pytube
+python -m pip install --upgrade pytube ffmpeg-python
 ```
 
-Sometime, the pypi release becomes slightly outdated. So you can install them from the source using this command :
+Sometimes, the pypi release becomes slightly outdated. So you can install it from the source using this command :
 
 ```bash
 python -m pip install git+https://github.com/pytube/pytube
@@ -20,19 +20,20 @@ python -m pip install git+https://github.com/pytube/pytube
 
 <br/>
 
-2. Then, open the `main.py` file and change the `dlpath` to your downloads directory :
-> e.g. **C:\Users\Username\Downloads** for windows users.
+2. Then, open the `main.py` file and change the `dlpath` to your downloads directory (make sure the last character isn't `\` or `/`) :
+>
+>For example :
 > 
-> e.g. **/home/Username/Downloads** for linux users.
-
-... and make sure the last character is not `\` or `/`.
+>Windows : **C:\Users\Username\Downloads**<br/>
+>Linux : **/home/Username/Downloads**<br/>
+>Mac OS : **/Users/Username/Downloads**<br/>
 
 <br/>
 
 ## Usage
 1. Run the `main.py` file.
-2. Type `V` or `v` to for MP4 video format, and `A` or `a` for MP3 audio format.
-3. Type the url of the video/playlist and wait for the video(s) to get loaded.
-
-If you are downloading a single video, a list of all available resolutions will appear then you will have to choose one of them by typing it (e.g. `1080p`).
-Then just wait for the program to finish working.
+2. Type the url of the video/playlist.
+3. Type `V` or `v` to for MP4 video format, and `A` or `a` for MP3 audio format.
+4. Wait for the video(s) to get loaded.
+5. Choose from the available resolutions (e.g. `1080p`), if you're downloading a single video in the MP4 mode.
+6. Wait for the program to finish working, then hit Enter to exit.
