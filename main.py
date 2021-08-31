@@ -21,31 +21,48 @@ welcomeText = '''
 vid_aud_msg = "V for video, or A for audio : "
 link_msg = "Write the link : "
 avreso_msg = "Here's all the available video resolutions :"
-choose_reso_msg = "Choose a resolution [e.g. 1080p]: "
-loading_msg = "Loading, please wait..."
-done_msg = "Done !"
-
+choose_reso_msg = "Choose a resolution (e.g. 1080p) ===>"
+loading_msg = "Loading, please wait...\n"
+done_msg = "DONE !"
+exit_msg = "Press enter to exit"
 
 # ════════════════════════════════════[ Defining some functions to be used later ]══════════════════════════════════════
 # Indicates that a video started downloading
 def startdl(var):
-    print("Video titled [" + var.title.upper()[:50] + "] started downloading")
+    print("╔═ Video titled [{}] started downloading".format(var.title.upper()[:50]))
 
 
 # Indicates that a video finished downloading
 def finishdl(var):
-    print("Video titled [" + var.title.upper()[:50] + "] has been downloaded")
+    print("╚═ Video titled [{}] has been downloaded\n".format(var.title.upper()[:50]))
+
+
+def startConverting():
+    print("╟──── Converting files to the proper format")
+
+
+def finishConverting():
+    print("╟──── Converting files has been done")
 
 
 # Download a video as an audio file
 def vid_to_aud(var):
     startdl(var)
+
     audioFile = var.streams.filter(only_audio=True).order_by("abr").last()
     audioFile.download(dlpath, filename_prefix="[Audio] ")
-    path2audio = os.path.join(dlpath, "audiofile " + safe_filename(audioFile.title))
-    audioInput = ffmpeg.input(path2audio + audioFile.subtype)
-    ffmpeg.output(audioInput, path2audio + ".mp3").run()
-    os.remove(path2audio + audioFile.subtype)
+
+    path2audio = os.path.join(dlpath, "[Audio] {}.{}".format(safe_filename(audioFile.title), audioFile.subtype))
+    path2final = os.path.join(dlpath, "{}.mp3".format(safe_filename(audioFile.title)))
+
+    startConverting()
+
+    audioInput = ffmpeg.input(path2audio)
+    ffmpeg.output(audioInput, path2final).global_args('-v', 'error', '-hide_banner', '-nostats').run()
+
+    os.remove(path2audio)
+
+    finishConverting()
     finishdl(var)
 
 
@@ -68,7 +85,7 @@ def dl_a_vid(var):
         # Display a list of all available video resolutions
         all_streams = var.streams
         video_resolutions = []
-        for stream in all_streams:
+        for stream in all_streams.filter(type="video").order_by("resolution"):
             reso = stream.resolution
             if reso and reso not in video_resolutions:
                 video_resolutions.append(reso)
@@ -78,6 +95,7 @@ def dl_a_vid(var):
 
         # Choose one of the available resolutions (e.g. 1080p)
         chosen_reso = input(choose_reso_msg)
+        print(blankline)
 
         # Indicates the start of the download process
         startdl(var)
@@ -105,13 +123,16 @@ def dl_a_vid(var):
 
             # Here's the path to the two downloaded files, and the name of the final file
             videoTitle = safe_filename(videoFile.title)
-            path2video = os.path.join(dlpath, "videofile " + videoTitle + videoFile.subtype)
-            path2audio = os.path.join(dlpath, "audiofile " + videoTitle + audioFile.subtype)
-            path2final = os.path.join(dlpath, videoTitle + ".mp4")
+            path2video = os.path.join(dlpath, "videofile {}.{}".format(videoTitle, videoFile.subtype))
+            path2audio = os.path.join(dlpath, "audiofile {}.{}".format(videoTitle, audioFile.subtype))
+            path2final = os.path.join(dlpath, "{}.mp4".format(videoTitle))
+
+            startConverting()
 
             # Use FFMPEG to combine the video with the audio and output them as a single mp4 file
             videoInput = ffmpeg.input(path2video)
             audioInput = ffmpeg.input(path2audio)
+            print("Video titled [{}] is being converted".format(videoTitle))
             ffmpeg.output(videoInput, audioInput, path2final).run()
 
             # Remove each of the video and audio file, leaving only the finished mp4 file
@@ -119,6 +140,7 @@ def dl_a_vid(var):
             os.remove(path2audio)
 
         # Indicates the finish of the download process
+        finishConverting()
         finishdl(var)
 
     # If the selected format is audio, then run this
@@ -142,6 +164,6 @@ else:
     video = YouTube(url)
     dl_a_vid(video)
 
-print(blankline, done_msg, "\n", "█" * 70)
+print(blankline + done_msg)
 
-input("Press enter to exit")
+input(exit_msg)
