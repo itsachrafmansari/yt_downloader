@@ -25,9 +25,8 @@ choose_reso_msg = "Choose a resolution (e.g. 1080p) ===>"
 loading_msg = "Loading, please wait...\n"
 done_msg = "DONE !"
 exit_msg = "Press enter to exit"
-
-# ════════════════════════════════════[ Defining some functions to be used later ]══════════════════════════════════════
 # Indicates that a video started downloading
+
 def startdl(var):
     print("╔═ Video titled [{}] started downloading".format(var.title.upper()[:50]))
 
@@ -37,35 +36,36 @@ def finishdl(var):
     print("╚═ Video titled [{}] has been downloaded\n".format(var.title.upper()[:50]))
 
 
+def finished_original_download():
+    print("╟──── Downloaded original file(s)")
+
+
 def startConverting():
-    print("╟──── Converting files to the proper format")
+    print("╟──── Converting file(s) to the proper format")
 
 
 def finishConverting():
-    print("╟──── Converting files has been done")
+    print("╟──── Converting file(s) has been done")
 
 
-# Download a video as an audio file
+# ════════════════════════[ Defining the function that download and convert a video to mp3]════════════════════════════
 def vid_to_aud(var):
     startdl(var)
 
-    audioFile = var.streams.filter(only_audio=True).order_by("abr").last()
-    audioFile.download(dlpath, filename_prefix="[Audio] ")
-
-    path2audio = os.path.join(dlpath, "[Audio] {}.{}".format(safe_filename(audioFile.title), audioFile.subtype))
-    path2final = os.path.join(dlpath, "{}.mp3".format(safe_filename(audioFile.title)))
+    audiofile = var.streams.filter(only_audio=True).order_by("abr").last()
+    audiofile.download()
+    finished_original_download()
 
     startConverting()
-
-    audioInput = ffmpeg.input(path2audio)
-    ffmpeg.output(audioInput, path2final).global_args('-v', 'error', '-hide_banner', '-nostats').run()
-
-    os.remove(path2audio)
-
+    options = '-v error -hide_banner -nostats'
+    os.system(f'ffmpeg -i "{audiofile.default_filename}" "{safe_filename(audiofile.title)}.mp3 {options}"')
+    os.remove(f'{audiofile.default_filename}')
     finishConverting()
+
     finishdl(var)
 
 
+# ════════════════════════[ Defining the function that download all videos from a playlist]════════════════════════════
 # Download videos from a playlist
 def dl_from_pl(var):
     if the_format == "v" or the_format == "V":
@@ -150,6 +150,8 @@ def dl_a_vid(var):
 
 # █████████████████████████████████████ THE USER INTERACTS WITH THE FOLLOWING CODE █████████████████████████████████████
 print(welcomeText)
+# url = "https://www.youtube.com/watch?v=dN9hp-GsAnU"
+# the_format = "V"
 url = input(blankline + link_msg)  # Write the url of the video/playlist
 the_format = input(blankline + vid_aud_msg)  # Which file format (mp4/mp3)
 print(blankline + loading_msg)
