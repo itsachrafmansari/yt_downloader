@@ -1,6 +1,5 @@
 # ███████████████████████████████████████████████ SETTING UP THE PROGRAM ███████████████████████████████████████████████
 import os
-import ffmpeg
 from pytube import YouTube, Playlist
 from pytube.helpers import safe_filename
 
@@ -20,57 +19,54 @@ welcomeText = '''
 '''
 vid_aud_msg = "V for video, or A for audio : "
 link_msg = "Write the link : "
-avreso_msg = "Here's all the available video resolutions :"
-choose_reso_msg = "Choose a resolution (e.g. 1080p) ===>"
 loading_msg = "Loading, please wait...\n"
 done_msg = "DONE !"
 exit_msg = "Press enter to exit"
 
-# ════════════════════════════════════[ Defining some functions to be used later ]══════════════════════════════════════
-# Indicates that a video started downloading
+
 def startdl(var):
-    print("╔═ Video titled [{}] started downloading".format(var.title.upper()[:50]))
+    print(f"╔═ Video titled [{var.title.upper()[:50]}] started downloading")
 
 
-# Indicates that a video finished downloading
-def finishdl(var):
-    print("╚═ Video titled [{}] has been downloaded\n".format(var.title.upper()[:50]))
+def finished_original_download():
+    print("╟──── Downloaded original file(s)")
 
 
 def startConverting():
-    print("╟──── Converting files to the proper format")
+    print("╟──── Converting file(s) to the proper format")
 
 
 def finishConverting():
-    print("╟──── Converting files has been done")
+    print("╟──── Converting file(s) is done")
 
 
-# Download a video as an audio file
+def finishdl(var):
+    print(f"╚═ Video titled [{var.title.upper()[:50]}] has been downloaded\n")
+
+
+# ════════════════════════[ Defining the function that download and convert a video to mp3]════════════════════════════
 def vid_to_aud(var):
     startdl(var)
 
-    audioFile = var.streams.filter(only_audio=True).order_by("abr").last()
-    audioFile.download(dlpath, filename_prefix="[Audio] ")
-
-    path2audio = os.path.join(dlpath, "[Audio] {}.{}".format(safe_filename(audioFile.title), audioFile.subtype))
-    path2final = os.path.join(dlpath, "{}.mp3".format(safe_filename(audioFile.title)))
+    audiofile = var.streams.filter(only_audio=True).order_by("abr").last()
+    audiofile.download(filename_prefix="original ")
+    finished_original_download()
 
     startConverting()
-
-    audioInput = ffmpeg.input(path2audio)
-    ffmpeg.output(audioInput, path2final).global_args('-v', 'error', '-hide_banner', '-nostats').run()
-
-    os.remove(path2audio)
-
+    options = '-v error -hide_banner -nostats'
+    os.system(f'ffmpeg -i "original {audiofile.default_filename}" "{safe_filename(audiofile.title)}.mp3 {options}"')
+    os.remove(f'original {audiofile.default_filename}')
     finishConverting()
+    
     finishdl(var)
 
 
+# ════════════════════════[ Defining the function that download all videos from a playlist]════════════════════════════
 # Download videos from a playlist
 def dl_from_pl(var):
     if the_format == "v" or the_format == "V":
         startdl(var)
-        var.streams.filter(subtype="mp4", progressive=True).order_by("resolution").last().download(dlpath)
+        var.streams.filter(subtype="mp4", progressive=True).order_by("resolution").last().download()
         finishdl(var)
     elif the_format == "a" or the_format == "A":
         vid_to_aud(var)
@@ -82,66 +78,57 @@ def dl_a_vid(var):
     # If the selected format is video, then run this
     if the_format == "v" or the_format == "V":
 
-        # Display a list of all available video resolutions
+        # Make a set of all available video resolutions
         all_streams = var.streams
         video_resolutions = []
         for stream in all_streams.filter(type="video").order_by("resolution"):
-            reso = stream.resolution
-            if reso and reso not in video_resolutions:
-                video_resolutions.append(reso)
+            if stream.resolution not in video_resolutions:
+                video_resolutions.append(stream.resolution)
 
-        print("\n" + blankline + avreso_msg)
+        # Display all available video resolutions
+        print("\n" + blankline + "Here's all the available video resolutions :")
         print(*video_resolutions, sep=',    ')
 
-        # Choose one of the available resolutions (e.g. 1080p)
-        chosen_reso = input(choose_reso_msg)
+        # Choose one of the available resolutions
+        chosen_reso = input("Choose a resolution (e.g. 1080p) :")
         print(blankline)
 
-        # Indicates the start of the download process
-        startdl(var)
-
         # Filter the streams according to the chosen resolution
-        video_streams = all_streams.filter(type="video", resolution=chosen_reso)
+        video_streams = all_streams.filter(type="video", progressive=True, resolution=chosen_reso)
 
         # If the stream is progressive, GREAT! Let's download it
-        done = False
-        for stream in video_streams:
-            if stream.is_progressive:
-                stream.download(dlpath)
-                done = True
-                break
+        if video_streams:
+            startdl(var)
+            video_streams[0].download()
+            finishdl(var)
 
         # If not then download the audio and video files separately and combine them
-        if not done:
+        else:
+            startdl(var)
+
             # Download the video part
-            videoFile = video_streams.order_by("filesize_approx").first()
-            videoFile.download(dlpath, filename_prefix="videofile ")
-
+            videoFile = all_streams.filter(only_video=True, resolution=chosen_reso).order_by("filesize_approx").first()
+            videoFile.download(filename_prefix="videofile ")
             # Download the audio part
-            audioFile = all_streams.filter(only_audio=True).order_by("abr").last()
-            audioFile.download(dlpath, filename_prefix="audiofile ")
-
-            # Here's the path to the two downloaded files, and the name of the final file
-            videoTitle = safe_filename(videoFile.title)
-            path2video = os.path.join(dlpath, "videofile {}.{}".format(videoTitle, videoFile.subtype))
-            path2audio = os.path.join(dlpath, "audiofile {}.{}".format(videoTitle, audioFile.subtype))
-            path2final = os.path.join(dlpath, "{}.mp4".format(videoTitle))
-
-            startConverting()
+            audioFile = all_streams.filter(only_audio=True).order_by("abr").first()
+            audioFile.download(filename_prefix="audiofile ")
+            finished_original_download()
 
             # Use FFMPEG to combine the video with the audio and output them as a single mp4 file
-            videoInput = ffmpeg.input(path2video)
-            audioInput = ffmpeg.input(path2audio)
-            print("Video titled [{}] is being converted".format(videoTitle))
-            ffmpeg.output(videoInput, audioInput, path2final).run()
+            startConverting()
 
-            # Remove each of the video and audio file, leaving only the finished mp4 file
-            os.remove(path2video)
-            os.remove(path2audio)
+            video_title = safe_filename(videoFile.title)
+            input_file_video = f"videofile {videoFile.default_filename}"
+            input_file_audio = f"audiofile {audioFile.default_filename}"
+            options = '-v error -hide_banner -nostats'
+            os.system(f'ffmpeg -i "{input_file_video}" -i "{input_file_audio}" -c copy "{video_title}.mp4" {options}')
+            os.remove(input_file_video)
+            os.remove(input_file_audio)
 
-        # Indicates the finish of the download process
-        finishConverting()
-        finishdl(var)
+            finishConverting()
+
+            finishdl(var)
+
 
     # If the selected format is audio, then run this
     elif the_format == "a" or the_format == "A":
