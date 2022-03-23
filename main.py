@@ -5,7 +5,6 @@ from pytube.helpers import safe_filename
 
 
 # ═══════════════════════════════════════════[ Texts used in this program ]═════════════════════════════════════════════
-dlpath = r"C:\Users\YOUR_USERNAME\Downloads"  # Choose a download folder
 blankline = "_" * 70 + "\n"  # Some decoration !
 welcomeText = '''
            ▄█████████████████████▄
@@ -54,10 +53,10 @@ def vid_to_aud(var):
 
     startConverting()
     options = '-v error -hide_banner -nostats'
-    os.system(f'ffmpeg -i "original {audiofile.default_filename}" "{safe_filename(audiofile.title)}.mp3 {options}"')
+    os.system(f'ffmpeg -i "original {audiofile.default_filename}" "{safe_filename(audiofile.title)}.mp3" {options}')
     os.remove(f'original {audiofile.default_filename}')
     finishConverting()
-    
+
     finishdl(var)
 
 
