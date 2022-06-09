@@ -20,7 +20,15 @@ vid_aud_msg = "V for video, or A for audio : "
 link_msg = "Write the link : "
 loading_msg = "Loading, please wait...\n"
 done_msg = "DONE !"
-exit_msg = "Press enter to exit"
+exit_msg = "Type Q to exit or R to download another video : "
+exit_command = "R"
+
+
+def clear():
+    if os.name == 'nt':
+        _ = os.system('cls')
+    else:
+        _ = os.system('clear')
 
 
 def startdl(var):
@@ -135,21 +143,23 @@ def dl_a_vid(var):
 
 
 # █████████████████████████████████████ THE USER INTERACTS WITH THE FOLLOWING CODE █████████████████████████████████████
-print(welcomeText)
-url = input(blankline + link_msg)  # Write the url of the video/playlist
-the_format = input(blankline + vid_aud_msg)  # Which file format (mp4/mp3)
-print(blankline + loading_msg)
+while exit_command in ("R", "r"):
+    clear()
+    print(welcomeText)
+    url = input(blankline + link_msg)  # Write the url of the video/playlist
+    the_format = input(blankline + vid_aud_msg)  # Which file format (mp4/mp3)
+    print(blankline + loading_msg)
 
-if "playlist?list" in url:
-    # Load playlist data
-    playlist = Playlist(url)
-    for video in playlist.videos:
-        dl_from_pl(video)
-else:
-    # Load video data
-    video = YouTube(url)
-    dl_a_vid(video)
+    if "playlist?list" in url:
+        # Load playlist data
+        playlist = Playlist(url)
+        for video in playlist.videos:
+            dl_from_pl(video)
+    else:
+        # Load video data
+        video = YouTube(url)
+        dl_a_vid(video)
 
-print(blankline + done_msg)
+    print(blankline + done_msg)
 
-input(exit_msg)
+    exit_command = input(exit_msg)
