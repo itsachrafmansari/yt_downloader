@@ -70,10 +70,10 @@ def vid_to_aud(var):
 
 # ════════════════════════[ Defining the function that download all videos from a playlist]════════════════════════════
 # Download videos from a playlist
-def dl_from_pl(var):
+def dl_from_pl(var, video_index):
     if the_format == "v" or the_format == "V":
         startdl(var)
-        var.streams.filter(subtype="mp4", progressive=True).order_by("resolution").last().download()
+        var.streams.filter(subtype="mp4", progressive=True).order_by("resolution").last().download(filename_prefix=f"{video_index}) ")
         finishdl(var)
     elif the_format == "a" or the_format == "A":
         vid_to_aud(var)
@@ -136,7 +136,6 @@ def dl_a_vid(var):
 
             finishdl(var)
 
-
     # If the selected format is audio, then run this
     elif the_format == "a" or the_format == "A":
         vid_to_aud(var)
@@ -153,8 +152,8 @@ while exit_command in ("R", "r"):
     if "playlist?list" in url:
         # Load playlist data
         playlist = Playlist(url)
-        for video in playlist.videos:
-            dl_from_pl(video)
+        for video_index, video in enumerate(playlist.videos):
+            dl_from_pl(video, video_index)
     else:
         # Load video data
         video = YouTube(url)
