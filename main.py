@@ -1,5 +1,6 @@
 # ███████████████████████████████████████████████ SETTING UP THE PROGRAM ███████████████████████████████████████████████
 import os
+import shutil
 from pytube import YouTube, Playlist
 from pytube.helpers import safe_filename
 
@@ -22,6 +23,9 @@ loading_msg = "Loading, please wait...\n"
 done_msg = "DONE !"
 exit_msg = "Type Q to exit or R to download another video : "
 exit_command = "R"
+current_folder = os.curdir
+os.makedirs("yt_dls")
+dl_path = os.path.join(os.curdir, "yt_dls")
 
 
 def clear():
@@ -56,13 +60,14 @@ def vid_to_aud(var):
     startdl(var)
 
     audiofile = var.streams.filter(only_audio=True).order_by("abr").last()
-    audiofile.download(filename_prefix="original ")
+    audiofile.download(current_folder, filename_prefix="original ")
     finished_original_download()
 
     startConverting()
     options = '-v error -hide_banner -nostats'
     os.system(f'ffmpeg -i "original {audiofile.default_filename}" "{safe_filename(audiofile.title)}.mp3" {options}')
     os.remove(f'original {audiofile.default_filename}')
+    shutil.move(f"{current_folder}/{safe_filename(audiofile.title)}.mp3", f"{dl_path}/{safe_filename(audiofile.title)}.mp3")
     finishConverting()
 
     finishdl(var)
@@ -73,7 +78,7 @@ def vid_to_aud(var):
 def dl_from_pl(var, video_index):
     if the_format == "v" or the_format == "V":
         startdl(var)
-        var.streams.filter(subtype="mp4", progressive=True).order_by("resolution").last().download(filename_prefix=f"{video_index}) ")
+        var.streams.filter(subtype="mp4", progressive=True).order_by("resolution").last().download(dl_path, filename_prefix=f"{video_index}) ")
         finishdl(var)
     elif the_format == "a" or the_format == "A":
         vid_to_aud(var)
@@ -95,6 +100,7 @@ def dl_a_vid(var):
         # Display all available video resolutions
         print("\n" + blankline + "Here's all the available video resolutions :")
         print(*video_resolutions, sep=',    ')
+        # print("".join([f"{reso:<8}" for reso in video_resolutions]))
 
         # Choose one of the available resolutions
         chosen_reso = input("Choose a resolution (e.g. 1080p) :")
@@ -106,7 +112,7 @@ def dl_a_vid(var):
         # If the stream is progressive, GREAT! Let's download it
         if video_streams:
             startdl(var)
-            video_streams[0].download()
+            video_streams[0].download(dl_path)
             finishdl(var)
 
         # If not then download the audio and video files separately and combine them
@@ -131,6 +137,7 @@ def dl_a_vid(var):
             os.system(f'ffmpeg -i "{input_file_video}" -i "{input_file_audio}" -c copy "{video_title}.mp4" {options}')
             os.remove(input_file_video)
             os.remove(input_file_audio)
+            shutil.move(f"{current_folder}/{video_title}.mp4", f"{dl_path}/{video_title}.mp4")
 
             finishConverting()
 
